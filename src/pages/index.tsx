@@ -48,8 +48,7 @@ export default function Home() {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    const articleId = router.query['id'];
-    if (articleId != undefined) {
+    if (articleId != undefined && messageState.messages.length === 0) {
       const article = articleInfo[articleId]
       const summary = `**Title**: ${article.title}\n\n**Summary**:\n${article.summary}\n\n*Do you have any question?*`
       console.log(summary)
@@ -62,7 +61,7 @@ export default function Home() {
         }]
       }));
     }
-  }, []);
+  });
 
   useEffect(() => {
     if (!loading) {
