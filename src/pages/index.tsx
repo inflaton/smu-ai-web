@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/router';
 import Layout from '@/components/layout';
 import styles from '@/styles/Home.module.css';
 import { Message } from '@/types/chat';
@@ -48,6 +49,7 @@ export default function Home() {
 
   const messageListRef = useRef<HTMLDivElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (!loading) {
@@ -177,6 +179,13 @@ export default function Home() {
 
     const ctrl = new AbortController();
 
+    // Get a specific query parameter
+    let chat_id = router.query['id'];
+    if (chat_id) {
+      chat_id = `${chat_id}.pdf`
+    }
+    console.log("chat_id: ", chat_id)
+
     try {
       await fetchEventSource(chatApiUrl, {
         method: 'POST',
@@ -187,7 +196,7 @@ export default function Home() {
         body: JSON.stringify({
           question,
           history: docsChat ? history : undefined,
-          chat_id: docsChat ? undefined : uuid
+          chat_id: docsChat ? chat_id : uuid
         }),
         signal: ctrl.signal,
         onmessage(event) {
