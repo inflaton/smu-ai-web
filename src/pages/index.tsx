@@ -15,7 +15,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { finished } from 'stream';
+
+import articleInfo from '@/utils/info.json';
 
 const chatApiUrl = process.env.NEXT_PUBLIC_CHAT_API_URL || '/api/chat';
 const docsChat = process.env.NEXT_PUBLIC_DOCS_CHAT || false;
@@ -26,6 +27,9 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(false);
   const [ready, setIsReady] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const articleId = router.query['id'];
+
   const [messageState, setMessageState] = useState<{
     messages: Message[];
     pending?: string;
@@ -33,14 +37,7 @@ export default function Home() {
     history: [string, string][];
     pendingSourceDocs?: Document[];
   }>({
-    messages: [
-      {
-        message:
-          process.env.NEXT_PUBLIC_HELLO ||
-          'Hi, how can I help you today?',
-        type: 'apiMessage',
-      },
-    ],
+    messages: [],
     history: [],
     pendingSourceDocs: [],
   });
@@ -49,7 +46,23 @@ export default function Home() {
 
   const messageListRef = useRef<HTMLDivElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const router = useRouter();
+
+  useEffect(() => {
+    const articleId = router.query['id'];
+    if (articleId != undefined) {
+      const article = articleInfo[articleId]
+      const summary = `**Title**: ${article.title}\n\n**Summary**:\n${article.summary}\n\n*Do you have any question?*`
+      console.log(summary)
+
+      setMessageState((state) => ({
+        ...state,
+        messages: [{
+          type: 'apiMessage',
+          message: summary,
+        }]
+      }));
+    }
+  }, []);
 
   useEffect(() => {
     if (!loading) {
